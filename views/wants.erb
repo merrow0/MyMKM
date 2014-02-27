@@ -1,0 +1,6 @@
+<ul data-role="listview">
+	<% @wantsList.each do |want| %>
+		<li><a href="/want/<%= want["idWantsList"] %>"><%= want["name"] %><span class="ui-li-count"><%= want["itemCount"] %></a></li>	
+	<% end %>
+</ul>
+
