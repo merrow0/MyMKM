@@ -17,11 +17,35 @@ get "/search" do
   erb :search
 end
 
-post "/search" do
+get "/result" do
+  @title = "Suche"
+  erb :search
+end
+
+post "/result" do
   @card = params[:searchStr]
   @title = "Suchergebnis fuer #{@card}"
 
-	erb :result
+  @resList = []
+  
+  xml = Nokogiri::XML(open("#{API_URL}/products/#{@card}/1/1/false", :ssl_verify_mode => OpenSSL::SSL::VERIFY_NONE))
+  
+  xml.css("product").each do |product|
+    prodHash = {}
+    
+    unless product.at_css("idProduct").nil?
+      prodHash["idProduct"] = product.at_css("idProduct").text
+      prodHash["productName"] = product.at_css("name productName").text
+      prodHash["priceGuide"] = product.at_css("priceGuide").text
+      prodHash["expansion"] = product.at_css("expansion").text
+      prodHash["rarity"] = product.at_css("rarity").text unless product.at_css("rarity").nil?
+      prodHash["image"] = product.at_css("image").text
+    end
+
+    @resList.push(prodHash)
+  end
+
+  erb :result
 end
 
 get "/wants" do
@@ -57,10 +81,20 @@ get "/want/:wantId" do
     wantHash["type"] = want.at_css("type").text
     wantHash["amount"] = want.at_css("amount").text
     
-    card_xml = Nokogiri::XML(open("#{API_URL}/metaproduct/#{wantHash["idMetaproduct"]}", :ssl_verify_mode => OpenSSL::SSL::VERIFY_NONE))
-    wantHash["metaproductName"] = card_xml.at_css("metaproduct metaproductName").text
-    wantHash["idProduct"] = card_xml.at_css("metaproduct idProduct").text
+    mcard_xml = Nokogiri::XML(open("#{API_URL}/metaproduct/#{wantHash["idMetaproduct"]}", :ssl_verify_mode => OpenSSL::SSL::VERIFY_NONE))
+    wantHash["productName"] = mcard_xml.at_css("metaproduct metaproductName").text
     
+    productHash = {}
+
+    mcard_xml.css("products idProduct").each do |product|
+      card_xml = Nokogiri::XML(open("#{API_URL}/product/#{product.text}", :ssl_verify_mode => OpenSSL::SSL::VERIFY_NONE))
+      productHash["priceGuide"] = card_xml.at_css("priceGuide").text
+      productHash["expansion"] = card_xml.at_css("expansion").text
+      productHash["image"] = card_xml.at_css("image").text
+    end
+
+    wantHash["idProducts"] = productHash
+
     @wantList.push(wantHash)
   end
   

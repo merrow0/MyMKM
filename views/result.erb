@@ -1,5 +1,11 @@
-<p>
-	Halloole
-</p>
-
-<p><%= @card %></p>
+<ul data-role="listview" data-autodividers="true">
+	<% @resList.each do |card| %>
+		<li>
+			<a href="/card/<%= card["idProduct"] %>">
+				<h5><%= card["productName"] %></h5>
+				<p><%= card["priceGuide"] %></p>
+				<span class="ui-li-count"><%= card["expansion"] %>
+			</a>
+		</li>	
+	<% end %>
+</ul>
