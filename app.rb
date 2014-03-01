@@ -23,8 +23,8 @@ get "/result" do
 end
 
 post "/result" do
-  @card = params[:searchStr]
-  @title = "Suchergebnis fuer #{@card}"
+  @card = params[:searchStr].gsub(" ", "%20")
+  @title = "Suchergebnis fuer #{params[:searchStr]}"
 
   @resList = []
   
@@ -36,7 +36,7 @@ post "/result" do
     unless product.at_css("idProduct").nil?
       prodHash["idProduct"] = product.at_css("idProduct").text
       prodHash["productName"] = product.at_css("name productName").text
-      prodHash["priceGuide"] = product.at_css("priceGuide").text
+      prodHash["priceGuide"] = "Low:#{product.at_css("priceGuide LOW").text} Avg:#{product.at_css("priceGuide AVG").text}"
       prodHash["expansion"] = product.at_css("expansion").text
       prodHash["rarity"] = product.at_css("rarity").text unless product.at_css("rarity").nil?
       prodHash["image"] = product.at_css("image").text
