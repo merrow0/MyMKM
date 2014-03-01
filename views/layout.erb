@@ -9,7 +9,9 @@
 		<script type="text/javascript">
 	        $(document).bind("mobileinit", function () {
 	          //  $.mobile.ajaxEnabled = false;
-	            $.mobile.defaultPageTransition = "fade";
+	            $.extend(  $.mobile , {
+   defaultPageTransition: 'none'
+  });
 	        });
 	    </script>
         <script src="http://code.jquery.com/mobile/1.2.1/jquery.mobile-1.2.1.min.js"></script>
