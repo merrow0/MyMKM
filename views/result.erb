@@ -1,11 +1,17 @@
 <ul data-role="listview" data-autodividers="true">
 	<% @resList.each do |card| %>
 		<li>
-			<a href="/card/<%= card["idProduct"] %>">
+			<a href="#<%= card["idProduct"] %>" data-rel="popup">
 				<h5><%= card["productName"] %></h5>
 				<p><%= card["priceGuide"] %></p>
 				<span class="ui-li-count"><%= card["expansion"] %>
 			</a>
-		</li>	
+		</li>
+		
+		<div data-role="popup" id="<%= card["idProduct"] %>">
+			<img src="https://www.magickartenmarkt.de/<%= card["image"] %>" />
+			<h5><%= card["productName"] %></h5>
+			<p><%= card["priceGuide"] %></p>
+		</div>
 	<% end %>
 </ul>

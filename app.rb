@@ -7,6 +7,8 @@ require "net/https"
 BASE_MKM_URL = "https://www.magickartenmarkt.de/"
 API_URL = "https://www.mkmapi.eu/ws/stevinyl/c4076bff0dc81ba0d93d858081a0c513"
 
+enable :sessions
+
 get "/" do
   @title = "Main"
 	erb :index
@@ -14,22 +16,19 @@ end
 
 get "/search" do
   @title = "Suche"
-  erb :search
-end
-
-get "/result" do
-  @title = "Suche"
+	
   erb :search
 end
 
 post "/result" do
-  @card = params[:searchStr].gsub(" ", "%20")
-  @title = "Suchergebnis fuer #{params[:searchStr]}"
+  card = params[:searchStr]
+  @title = "Suchergebnis fuer #{card}"
 
+  card = card.gsub(" ", "%20")
   @resList = []
   
-  xml = Nokogiri::XML(open("#{API_URL}/products/#{@card}/1/1/false", :ssl_verify_mode => OpenSSL::SSL::VERIFY_NONE))
-  
+  xml = Nokogiri::XML(open("#{API_URL}/products/#{card}/1/1/false", :ssl_verify_mode => OpenSSL::SSL::VERIFY_NONE))
+
   xml.css("product").each do |product|
     prodHash = {}
     
@@ -39,13 +38,18 @@ post "/result" do
       prodHash["priceGuide"] = "Low:#{product.at_css("priceGuide LOW").text} Avg:#{product.at_css("priceGuide AVG").text}"
       prodHash["expansion"] = product.at_css("expansion").text
       prodHash["rarity"] = product.at_css("rarity").text unless product.at_css("rarity").nil?
-      prodHash["image"] = product.at_css("image").text
+      prodHash["image"] = product.at_css("image").text[1..-1]
     end
 
     @resList.push(prodHash)
   end
 
   erb :result
+end
+
+get "/card/:cardId" do
+  @title = "Karte"
+  erb :card, :layout => false
 end
 
 get "/wants" do
