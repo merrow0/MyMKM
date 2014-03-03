@@ -1,19 +1,23 @@
 require "rubygems"
-require "mechanize"
+require "nokogiri"
 require "sinatra"
 require "open-uri"
 require "net/https"
 
 BASE_MKM_URL = "https://www.magickartenmarkt.de"
-#API_URL = "https://www.mkmapi.eu/ws/stevinyl/c4076bff0dc81ba0d93d858081a0c513"
-@api_url = ""
+api_url = ""
 
 enable :sessions
 
 get "/" do
   @title = "Main"
-
-  p @api_url
+	
+	if api_url.length > 0
+		@msg = "Angemeldet, herzlich Willkommen."
+	else
+		@msg = "Nicht angemeldet, somit nur die Suche möglich."
+	end
+	
 	erb :index
 end
 
@@ -23,6 +27,8 @@ get "/login" do
 end
 
 post "/login" do
+	require "mechanize"
+	
   agent = Mechanize.new
   page = agent.get("#{BASE_MKM_URL}", :ssl_verify_mode => OpenSSL::SSL::VERIFY_NONE)
   login_form = page.forms[1]
@@ -36,7 +42,11 @@ post "/login" do
   page = agent.get("#{BASE_MKM_URL}/?mainPage=showMyAccount", :ssl_verify_mode => OpenSSL::SSL::VERIFY_NONE)
   api_key = page.parser.css(".myAccountPersonalData-table a")[1].text unless page.parser.css(".myAccountPersonalData-table a")[1].nil?
 
-  @api_url += "https://www.mkmapi.eu/ws/#{params[:user]}/#{api_key}"
+  unless api_key.nil?
+    api_url = "https://www.mkmapi.eu/ws/#{params[:user]}/#{api_key}"
+  else
+    redirect to "/login"
+  end
 
   redirect to "/"
 end
@@ -55,7 +65,7 @@ post "/result" do
   card = card.gsub(" ", "%20")
   @resList = []
   
-  xml = Nokogiri::XML(open("#{@api_url}/products/#{card}/1/1/false", :ssl_verify_mode => OpenSSL::SSL::VERIFY_NONE))
+  xml = Nokogiri::XML(open("#{api_url}/products/#{card}/1/1/false", :ssl_verify_mode => OpenSSL::SSL::VERIFY_NONE))
 
   xml.css("product").each do |product|
     prodHash = {}
@@ -84,7 +94,7 @@ get "/wants" do
   @title = "Wants"
   @wantsList = []
   
-  xml = Nokogiri::XML(open("#{@api_url}/wantslist", :ssl_verify_mode => OpenSSL::SSL::VERIFY_NONE))
+  xml = Nokogiri::XML(open("#{api_url}/wantslist", :ssl_verify_mode => OpenSSL::SSL::VERIFY_NONE))
   
   xml.css("wantsList").each do |want|
     wantHash = {}
@@ -103,7 +113,7 @@ get "/want/:wantId" do
   @title = "Karten von "
   @wantList = []
   
-  xml = Nokogiri::XML(open("#{@api_url}/wantslist/#{params[:wantId]}", :ssl_verify_mode => OpenSSL::SSL::VERIFY_NONE))
+  xml = Nokogiri::XML(open("#{api_url}/wantslist/#{params[:wantId]}", :ssl_verify_mode => OpenSSL::SSL::VERIFY_NONE))
   
   xml.css("want").each do |want|
     wantHash = {}
@@ -113,13 +123,13 @@ get "/want/:wantId" do
     wantHash["type"] = want.at_css("type").text
     wantHash["amount"] = want.at_css("amount").text
     
-    mcard_xml = Nokogiri::XML(open("#{@api_url}/metaproduct/#{wantHash["idMetaproduct"]}", :ssl_verify_mode => OpenSSL::SSL::VERIFY_NONE))
+    mcard_xml = Nokogiri::XML(open("#{api_url}/metaproduct/#{wantHash["idMetaproduct"]}", :ssl_verify_mode => OpenSSL::SSL::VERIFY_NONE))
     wantHash["productName"] = mcard_xml.at_css("metaproduct metaproductName").text
     
     productHash = {}
 
     mcard_xml.css("products idProduct").each do |product|
-      card_xml = Nokogiri::XML(open("#{@api_url}/product/#{product.text}", :ssl_verify_mode => OpenSSL::SSL::VERIFY_NONE))
+      card_xml = Nokogiri::XML(open("#{api_url}/product/#{product.text}", :ssl_verify_mode => OpenSSL::SSL::VERIFY_NONE))
       productHash["priceGuide"] = card_xml.at_css("priceGuide").text
       productHash["expansion"] = card_xml.at_css("expansion").text
       productHash["image"] = card_xml.at_css("image").text
