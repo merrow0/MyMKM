@@ -1,1 +1,10 @@
-<%= @wantList %>
+<ul data-role="listview" data-autodividers="true">
+	<% @wantList.each do |want| %>
+		<li>
+			<a href="/want/<%= want["idMetaproduct"] %>/detail">
+				<h5><%= want["productName"] %></h5>
+				<span class="ui-li-count"><%= want["amount"] %>
+			</a>
+		</li>
+	<% end %>
+</ul>
