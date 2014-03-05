@@ -4,14 +4,14 @@
 			<a href="#<%= card["idProduct"] %>" data-rel="popup">
 				<h5><%= card["productName"] %></h5>
 				<p><%= card["priceGuide"] %></p>
-				<span class="ui-li-count"><%= card["expansion"] %>
+				<span class="ui-li-count"><%= card["expansion"] %></span>
 			</a>
 		</li>
 		
 		<div data-role="popup" id="<%= card["idProduct"] %>">
 			<img src="https://www.magickartenmarkt.de/<%= card["image"] %>" />
 			<h5><%= card["productName"] %></h5>
-			<p><%= card["priceGuide"] %></p>
+			<p><%= card["rarity"] %></p>
 		</div>
 	<% end %>
 </ul>

@@ -60,6 +60,10 @@ get "/search" do
   erb :search
 end
 
+get "/result" do
+  redirect to "/search"
+end
+
 post "/result" do
   card = params[:searchStr]
   @title = "Suchergebnis für '#{card}'"
@@ -75,7 +79,7 @@ post "/result" do
     unless product.at_css("idProduct").nil?
       prodHash["idProduct"] = product.at_css("idProduct").text
       prodHash["productName"] = product.at_css("name productName").text
-      prodHash["priceGuide"] = "Low:#{product.at_css("priceGuide LOW").text}€  /  Avg:#{product.at_css("priceGuide AVG").text}€"
+      prodHash["priceGuide"] = "Low: #{product.at_css("priceGuide LOW").text}€  /  Avg: #{product.at_css("priceGuide AVG").text}€"
       prodHash["expansion"] = product.at_css("expansion").text
       prodHash["rarity"] = product.at_css("rarity").text unless product.at_css("rarity").nil?
       prodHash["image"] = product.at_css("image").text[1..-1]
@@ -117,6 +121,12 @@ get "/wants" do
   erb :wants
 end
 
+before "/want/:wantId" do
+  if api_url.length == 0
+    redirect to "/login"
+  end
+end
+
 get "/want/:wantId" do
   @title = "Karten von "
   @wantList = []
@@ -132,12 +142,20 @@ get "/want/:wantId" do
     wantHash["amount"] = want.at_css("amount").text
     
     mcard_xml = Nokogiri::XML(open("#{api_url}/metaproduct/#{wantHash["idMetaproduct"]}", :ssl_verify_mode => OpenSSL::SSL::VERIFY_NONE))
-    wantHash["productName"] = mcard_xml.at_css("name metaproductName")
+    wantHash["productName"] = mcard_xml.at_css("name metaproductName").text
     
     @wantList.push(wantHash)
   end
   
+  @wantList.sort_by! {|k| k["productName"]}
+  
   erb :want
+end
+
+before "/want/:metaId/detail" do
+  if api_url.length == 0
+    redirect to "/login"
+  end
 end
 
 get "/want/:metaId/detail" do
@@ -215,7 +233,17 @@ get "/orders/:actor" do
       hash = {}
       
       hash["seller_username"] = order.at_css("seller username").text
+      hash["seller_name"] = order.at_css("seller address name").text
+      hash["seller_street"] = order.at_css("seller address street").text
+      hash["seller_zip_city"] = order.at_css("seller address zip").text + " " + order.at_css("seller address city").text
+      hash["seller_country"] = order.at_css("seller address country").text
+      
       hash["buyer username"] = order.at_css("buyer username").text
+      hash["buyer_name"] = order.at_css("buyer address name").text
+      hash["buyer_street"] = order.at_css("buyer address street").text
+      hash["buyer_zip_city"] = order.at_css("buyer address zip").text + " " + order.at_css("buyer address city").text
+      hash["buyer_country"] = order.at_css("buyer address country").text
+      
       hash["articleValue"] = order.at_css("articleValue").text
       hash["totalValue"] = order.at_css("totalValue").text
       
