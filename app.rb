@@ -199,11 +199,32 @@ get "/orders/:actor" do
     unless order.at_css("seller").nil?
       hash = {}
       
-      hash["seller"] = order.at_css("seller").text
-      hash["buyer"] = order.at_css("buyer").text
-      hash["article"] = order.at_css("article").text
+      hash["shippingMethod_name"] = order.at_css("shippingMethod name").text
+      hash["shippingMethod_price"] = order.at_css("shippingMethod price").text
+      hash["shippingAddress_name"] = order.at_css("shippingAddress name").text
+      hash["shippingAddress_extra"] = order.at_css("shippingAddress extra").text
+      hash["shippingAddress_street"] = order.at_css("shippingAddress street").text
+      hash["shippingAddress_city"] = order.at_css("shippingAddress zip").text + " " + order.at_css("shippingAddress city").text
+      hash["shippingAddress_country"] = order.at_css("shippingAddress country").text
       hash["articleValue"] = order.at_css("articleValue").text
       hash["totalValue"] = order.at_css("totalValue").text
+
+      hash["articles"] = []
+      order.css("article").each do |article|
+        card = {}
+        card["idProduct"] = article.at_css("idProduct").text
+
+        card_xml = Nokogiri::XML(open("#{api_url}/product/#{card["idProduct"]}", :ssl_verify_mode => OpenSSL::SSL::VERIFY_NONE))
+        card["productName"] = card_xml.at_css("name productName").text
+        card["priceGuide"] = "Low:#{card_xml.at_css("priceGuide LOW").text}€  /  Avg:#{card_xml.at_css("priceGuide AVG").text}€"
+        card["image"] = card_xml.at_css("image").text[1..-1]
+
+        card["price"] = article.at_css("price").text
+        card["count"] = article.at_css("count").text
+        hash["articles"].push(card)
+      end
+
+      hash["articles"].sort_by! {|k| k["productName"]}
       
       @boughtList.push(hash)
     end
@@ -215,11 +236,32 @@ get "/orders/:actor" do
     unless order.at_css("seller").nil?
       hash = {}
       
-      hash["seller"] = order.at_css("seller").text
-      hash["buyer"] = order.at_css("buyer").text
-      hash["article"] = order.at_css("article").text
+      hash["shippingMethod_name"] = order.at_css("shippingMethod name").text
+      hash["shippingMethod_price"] = order.at_css("shippingMethod price").text
+      hash["shippingAddress_name"] = order.at_css("shippingAddress name").text
+      hash["shippingAddress_extra"] = order.at_css("shippingAddress extra").text
+      hash["shippingAddress_street"] = order.at_css("shippingAddress street").text
+      hash["shippingAddress_city"] = order.at_css("shippingAddress zip").text + " " + order.at_css("shippingAddress city").text
+      hash["shippingAddress_country"] = order.at_css("shippingAddress country").text
       hash["articleValue"] = order.at_css("articleValue").text
       hash["totalValue"] = order.at_css("totalValue").text
+
+      hash["articles"] = []
+      order.css("article").each do |article|
+        card = {}
+        card["idProduct"] = article.at_css("idProduct").text
+
+        card_xml = Nokogiri::XML(open("#{api_url}/product/#{card["idProduct"]}", :ssl_verify_mode => OpenSSL::SSL::VERIFY_NONE))
+        card["productName"] = card_xml.at_css("name productName").text
+        card["priceGuide"] = "Low:#{card_xml.at_css("priceGuide LOW").text}€  /  Avg:#{card_xml.at_css("priceGuide AVG").text}€"
+        card["image"] = card_xml.at_css("image").text[1..-1]
+
+        card["price"] = article.at_css("price").text
+        card["count"] = article.at_css("count").text
+        hash["articles"].push(card)
+      end
+
+      hash["articles"].sort_by! {|k| k["productName"]}
       
       @paidList.push(hash)
     end
@@ -232,28 +274,33 @@ get "/orders/:actor" do
     unless order.at_css("seller").nil?
       hash = {}
       
-      hash["seller_username"] = order.at_css("seller username").text
-      hash["seller_name"] = order.at_css("seller address name").text
-      hash["seller_street"] = order.at_css("seller address street").text
-      hash["seller_zip_city"] = order.at_css("seller address zip").text + " " + order.at_css("seller address city").text
-      hash["seller_country"] = order.at_css("seller address country").text
-      
-      hash["buyer username"] = order.at_css("buyer username").text
-      hash["buyer_name"] = order.at_css("buyer address name").text
-      hash["buyer_street"] = order.at_css("buyer address street").text
-      hash["buyer_zip_city"] = order.at_css("buyer address zip").text + " " + order.at_css("buyer address city").text
-      hash["buyer_country"] = order.at_css("buyer address country").text
-      
+      hash["shippingMethod_name"] = order.at_css("shippingMethod name").text
+      hash["shippingMethod_price"] = order.at_css("shippingMethod price").text
+      hash["shippingAddress_name"] = order.at_css("shippingAddress name").text
+      hash["shippingAddress_extra"] = order.at_css("shippingAddress extra").text
+      hash["shippingAddress_street"] = order.at_css("shippingAddress street").text
+      hash["shippingAddress_city"] = order.at_css("shippingAddress zip").text + " " + order.at_css("shippingAddress city").text
+      hash["shippingAddress_country"] = order.at_css("shippingAddress country").text
       hash["articleValue"] = order.at_css("articleValue").text
       hash["totalValue"] = order.at_css("totalValue").text
-      
-      hash["articles"] = {}
+
+      hash["articles"] = []
       order.css("article").each do |article|
-        hash["articles"]["idProduct"] = article.at_css("idProduct").text
-        hash["articles"]["price"] = article.at_css("price").text
-        hash["articles"]["count"] = article.at_css("count").text
+        card = {}
+        card["idProduct"] = article.at_css("idProduct").text
+
+        card_xml = Nokogiri::XML(open("#{api_url}/product/#{card["idProduct"]}", :ssl_verify_mode => OpenSSL::SSL::VERIFY_NONE))
+        card["productName"] = card_xml.at_css("name productName").text
+        card["priceGuide"] = "Low:#{card_xml.at_css("priceGuide LOW").text}€  /  Avg:#{card_xml.at_css("priceGuide AVG").text}€"
+        card["image"] = card_xml.at_css("image").text[1..-1]
+
+        card["price"] = article.at_css("price").text
+        card["count"] = article.at_css("count").text
+        hash["articles"].push(card)
       end
-      
+
+      hash["articles"].sort_by! {|k| k["productName"]}
+            
       @sentList.push(hash)
     end
   end

@@ -1,14 +1,149 @@
 <div data-role="collapsible">
 	<h4>Unbezahlte Bestellungen</h4>
-	<p><%= @boughtList %></p>
+	<p>
+		<div data-role="collapsibleset" data-inset="false">
+			<% @boughtList.each do |bought| %>
+	    		<div data-role="collapsible" data-inset="false">
+	        		<h6>
+	        			<div class="ui-grid-a">
+				    		<div class="ui-block-a">
+				    			<div style="height:90px">
+					    			<%= bought["shippingAddress_name"] %><br>
+					    			<%= bought["shippingAddress_extra"] %><br>
+					    			<%= bought["shippingAddress_street"] %><br>
+					    			<%= bought["shippingAddress_city"] %><br>
+					    			<%= bought["shippingAddress_country"] %><br>
+					    		</div>
+				    		</div>
+				    		<div class="ui-block-b">
+				    			<div style="height:60px">
+				    				Warenwert: <%= bought["articleValue"] %>€<br>
+				    				<%= bought["shippingMethod_name"] %> (<%= bought["shippingMethod_price"] %>€)
+				    			</div>
+				    		</div>
+				    	</div>
+	        		</h6>
+	    			<p>
+	    				<ul data-role="listview" data-autodividers="true">
+							<% bought["articles"].each do |card| %>
+								<li>
+									<a href="#<%= card["idProduct"] %>" data-rel="popup">
+										<h5><%= card["productName"] %></h5>
+										<p><%= card["price"] %>€</p>
+										<span class="ui-li-count"><%= card["count"] %></span>
+									</a>
+								</li>
+								
+								<div data-role="popup" id="<%= card["idProduct"] %>">
+									<img src="https://www.magickartenmarkt.de/<%= card["image"] %>" />
+									<h5><%= card["productName"] %></h5>
+									<p><%= card["priceGuide"] %></p>
+								</div>
+							<% end %>
+						</ul>
+	    			</p>
+	    		</div>
+	    	<% end %>
+    	</div>
+	</p>
 </div>
 
 <div data-role="collapsible">
 	<h4>Bezahlte Bestellungen</h4>
-	<p><%= @paidList %></p>
+	<p>
+		<div data-role="collapsibleset" data-inset="false">
+			<% @paidList.each do |paid| %>
+	    		<div data-role="collapsible" data-inset="false">
+	        		<h6>
+	        			<div class="ui-grid-a">
+				    		<div class="ui-block-a">
+				    			<div style="height:90px">
+					    			<%= paid["shippingAddress_name"] %><br>
+					    			<%= paid["shippingAddress_extra"] %><br>
+					    			<%= paid["shippingAddress_street"] %><br>
+					    			<%= paid["shippingAddress_city"] %><br>
+					    			<%= paid["shippingAddress_country"] %><br>
+					    		</div>
+				    		</div>
+				    		<div class="ui-block-b">
+				    			<div style="height:60px">
+				    				Warenwert: <%= paid["articleValue"] %>€<br>
+				    				<%= paid["shippingMethod_name"] %> (<%= paid["shippingMethod_price"] %>€)
+				    			</div>
+				    		</div>
+				    	</div>
+	        		</h6>
+	    			<p>
+	    				<ul data-role="listview" data-autodividers="true">
+							<% paid["articles"].each do |card| %>
+								<li>
+									<a href="#<%= card["idProduct"] %>" data-rel="popup">
+										<h5><%= card["productName"] %></h5>
+										<p><%= card["price"] %>€</p>
+										<span class="ui-li-count"><%= card["count"] %></span>
+									</a>
+								</li>
+								
+								<div data-role="popup" id="<%= card["idProduct"] %>">
+									<img src="https://www.magickartenmarkt.de/<%= card["image"] %>" />
+									<h5><%= card["productName"] %></h5>
+									<p><%= card["priceGuide"] %></p>
+								</div>
+							<% end %>
+						</ul>
+	    			</p>
+	    		</div>
+	    	<% end %>
+    	</div>
+	</p>
 </div>
 
 <div data-role="collapsible">
 	<h4>Gesandte Bestellungen</h4>
-	<p><%= @sentList %></p>
+	<p>
+		<div data-role="collapsibleset" data-inset="false">
+			<% @sentList.each do |sent| %>
+	    		<div data-role="collapsible" data-inset="false">
+	        		<h6>
+	        			<div class="ui-grid-a">
+				    		<div class="ui-block-a">
+				    			<div style="height:90px">
+					    			<%= sent["shippingAddress_name"] %><br>
+					    			<%= sent["shippingAddress_extra"] %><br>
+					    			<%= sent["shippingAddress_street"] %><br>
+					    			<%= sent["shippingAddress_city"] %><br>
+					    			<%= sent["shippingAddress_country"] %><br>
+					    		</div>
+				    		</div>
+				    		<div class="ui-block-b">
+				    			<div style="height:60px">
+				    				Warenwert: <%= sent["articleValue"] %>€<br>
+				    				<%= sent["shippingMethod_name"] %> (<%= sent["shippingMethod_price"] %>€)
+				    			</div>
+				    		</div>
+				    	</div>
+	        		</h6>
+	    			<p>
+	    				<ul data-role="listview" data-autodividers="true">
+							<% sent["articles"].each do |card| %>
+								<li>
+									<a href="#<%= card["idProduct"] %>" data-rel="popup">
+										<h5><%= card["productName"] %></h5>
+										<p><%= card["price"] %>€</p>
+										<span class="ui-li-count"><%= card["count"] %></span>
+									</a>
+								</li>
+								
+								<div data-role="popup" id="<%= card["idProduct"] %>">
+									<img src="https://www.magickartenmarkt.de/<%= card["image"] %>" />
+									<h5><%= card["productName"] %></h5>
+									<p><%= card["priceGuide"] %></p>
+								</div>
+							<% end %>
+						</ul>
+	    			</p>
+	    		</div>
+	    	<% end %>
+    	</div>
+	</p>
 </div>
