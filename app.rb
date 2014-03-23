@@ -6,17 +6,14 @@ require "net/https"
 
 BASE_MKM_URL = "https://www.magickartenmarkt.de"
 api_url = ""
+forward_to = ""
 
 enable :sessions
 
 get "/" do
   @title = "Main"
 	
-	if api_url.length > 0
-		@msg = "Angemeldet, herzlich Willkommen."
-	else
-		@msg = "Nicht angemeldet, somit nur die Suche moeglich."
-	end
+	@msg = "Herzlich Willkommen auf MyMKM. Da im Alpha-Stadium sind zur Zeit nur Read-Only Aktionen möglich."
 	
 	erb :index
 end
@@ -50,7 +47,11 @@ post "/login" do
     redirect to "/login"
   end
 
-  redirect to "/"
+  if forward_to.length > 0
+    redirect to forward_to
+  else
+    redirect to "/"
+  end
 end
 
 
@@ -66,7 +67,7 @@ end
 
 post "/result" do
   card = params[:searchStr]
-  @title = "Suchergebnis für '#{card}'"
+  @title = "Ergebnis für '#{card}'"
 
   card = card.gsub(" ", "%20")
   @resList = []
@@ -98,6 +99,7 @@ end
 =end
 before "/wants" do
   if api_url.length == 0
+    forward_to = "/wants"
     redirect to "/login"
   end
 end
@@ -123,12 +125,13 @@ end
 
 before "/want/:wantId" do
   if api_url.length == 0
+    forward_to = "/want/#{params[:wantId]}"
     redirect to "/login"
   end
 end
 
 get "/want/:wantId" do
-  @title = "Karten von "
+  @title = "Wants-Karten"
   @wantList = []
   
   xml = Nokogiri::XML(open("#{api_url}/wantslist/#{params[:wantId]}", :ssl_verify_mode => OpenSSL::SSL::VERIFY_NONE))
@@ -185,6 +188,7 @@ end
 
 before "/orders/:actor" do
   if api_url.length == 0
+    forward_to = "/orders/#{params[:actor]}"
     redirect to "/login"
   end
 end
