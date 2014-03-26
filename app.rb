@@ -12,10 +12,13 @@ enable :sessions
 
 get "/" do
   @title = "Main"
-	
-	@msg = "Herzlich Willkommen auf MyMKM. Da im Alpha-Stadium sind zur Zeit nur Read-Only Aktionen möglich."
+	@msg = ""
 	
 	erb :index
+end
+
+get "/down/:file" do |file|
+  send_file("./down/#{file}", :filename => file, :type => "application/octet-stream", :disposition => "attachment")
 end
 
 get "/login" do
